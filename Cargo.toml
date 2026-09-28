@@ -33,5 +33,8 @@ tokio = { version = "1", features = ["time", "rt", "macros"] }
 # 不要加 reqwest：出站 HTTP 一律走 arona::runtime::http，由宿主代发（见 PLUGIN_DEVELOPMENT.md §14.1）
 
 [profile.release]
+# 跟框架 workspace 同一档（框架根 Cargo.toml 里也是 opt-level = 2）。握手比的是 profile 名
+# 而不是这里的调优参数，写歪了不会拒载，只是白白多花编译时间。
+opt-level = 2
 # 想在自己 IDE 里 attach 到 arona-rs.exe 断点，就取消下一行注释再重编 dll
 # debug = 1
