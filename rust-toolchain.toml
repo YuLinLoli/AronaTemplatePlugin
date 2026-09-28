@@ -1,0 +1,11 @@
+# 框架的 ABI 指纹里带着 rustc 的 release 号（见框架 crates/arona/build.rs），
+# 编译器版本不一致的插件会被宿主直接拒载。所以版本在这里钉死，与框架仓库那一行保持一致。
+#
+# 框架侧升级工具链的流程是：改框架那一行 -> 重编宿主 -> 所有插件跟着改这一行 -> 重编 dll。
+# 只改框架不改插件，老插件会全部拒载（那是设计意图，不是回归）。
+[toolchain]
+channel = "1.98.0"
+# 这里**故意不写 components**：写了之后每次 cargo 都会先补装缺的组件，补装失败
+# （Windows 上实测会撞已存在的 cargo-clippy.exe 并报 detected conflict）就整条命令回滚，
+# 网络不好时还会把工具链留在"已装但 rlib 是空的"那种半装状态。要 rustfmt/clippy 显式跑：
+#   rustup component add rustfmt clippy

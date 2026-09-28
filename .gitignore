@@ -1,0 +1,5 @@
+/target
+
+# 交付物就是编译好的 dll，但别提交进仓库：让用户从 Releases 下载，
+# 或至少知道它来自哪次构建、哪套工具链（PLUGIN_DEVELOPMENT.md §22 的"发布必须写明的三件事"）
+*.dll

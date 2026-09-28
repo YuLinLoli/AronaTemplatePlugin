@@ -1,0 +1,37 @@
+[package]
+# 发布名（也是插件仓库里的 crate 名）。插件 id 与之独立：真正决定目录名与配置键的是
+# src/lib.rs 里 PluginMeta::new 的第一个参数。
+name = "my-plugin"
+version = "0.1.0"
+# edition 与框架一致；它只影响本 crate 的语法语义，不进 ABI 指纹
+edition = "2024"
+description = "Arona 功能插件模板：编译成 dll 交给框架在启动时装载"
+
+[lib]
+# dll 文件名取自这里：产物 target/release/my_plugin.dll
+name = "my_plugin"
+path = "src/lib.rs"
+# cdylib 出 dll；rlib 那份只给 `cargo test` 用，宿主永远不链接它
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# 务必 default-features = false：框架的 gui 特性只在宿主那边打开，插件带上它会把
+# eframe/wgpu 整条依赖链拖进 dll，体积暴涨且与宿主的那份重复。
+#
+# 三种依赖写法，挑一种（库名始终是 arona，所以源码里 use arona:: 不变）：
+#   1. 本地同源联调（模板默认，改一行就能编译）
+arona = { package = "arona-rs", path = "../Arona-rs/crates/arona", default-features = false }
+#   2. crates.io（框架 1.1.0 起发布在这里；注意 arona 这个名字是另一个项目，别装错）
+# arona = { package = "arona-rs", version = "1.1.0", default-features = false }
+#   3. 按标签取框架仓库（标签必须 >= v1.1.0，v1.0.0 里没有对象模型且 ABI 布局停在 3）
+# arona = { package = "arona-rs", git = "https://github.com/YuLinLoli/Arona-rs", tag = "v1.1.0", default-features = false }
+#
+# 类型化配置要 derive；命令/钩子的 async 体里要 tokio::time::sleep、select! 也要它
+# （框架按帧给这类任务补装运行时上下文）。起后台任务用 ctx.spawn，别裸 tokio::spawn。
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["time", "rt", "macros"] }
+# 不要加 reqwest：出站 HTTP 一律走 arona::runtime::http，由宿主代发（见 PLUGIN_DEVELOPMENT.md §14.1）
+
+[profile.release]
+# 想在自己 IDE 里 attach 到 arona-rs.exe 断点，就取消下一行注释再重编 dll
+# debug = 1

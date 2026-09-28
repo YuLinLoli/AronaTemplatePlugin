@@ -1,0 +1,16 @@
+# 与框架仓库同一口径：入库 LF、签出也 LF，二进制不许被"修复"行尾。
+# 两边不一致时 rustfmt 写出的文件会和 Windows 编辑器写出的混在一起，git 每次都要警告。
+* text=auto eol=lf
+
+*.dll binary
+*.exe binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary
+*.ttf binary
+*.zip binary
+
+*.toml text eol=lf
+*.rs text eol=lf
+*.md text eol=lf
